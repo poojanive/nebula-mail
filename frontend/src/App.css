@@ -1,0 +1,1114 @@
+/* ==========================================
+   GLOBAL
+   ========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f7fb;
+  color: #202124;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+/* ==========================================
+   APP LAYOUT
+   ========================================== */
+
+.app {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+
+/* ==========================================
+   SIDEBAR
+   ========================================== */
+
+.sidebar {
+  width: 230px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  background: #6d28d9;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compose-button {
+  width: 100%;
+  border: none;
+  background: #6d28d9;
+  color: white;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 25px;
+}
+
+.compose-button:hover {
+  opacity: 0.9;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.nav-item:hover {
+  background: #f3f0ff;
+}
+
+.nav-item.active {
+  background: #eee7ff;
+  color: #6d28d9;
+  font-weight: bold;
+}
+
+.count {
+  margin-left: auto;
+  background: #6d28d9;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+
+/* ==========================================
+   MAIN CONTENT
+   ========================================== */
+
+.main {
+  flex: 1;
+  padding: 28px 35px;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.header p {
+  margin: 5px 0 0;
+  color: #777;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+
+/* ==========================================
+   SEARCH
+   ========================================== */
+
+.search-box {
+  width: 280px;
+  background: white;
+  border: 1px solid #e1e3e8;
+  border-radius: 9px;
+  padding: 10px 13px;
+  display: flex;
+  gap: 8px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+
+/* ==========================================
+   PROFILE
+   ========================================== */
+
+.profile {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #6d28d9;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+
+/* ==========================================
+   EMAIL LIST
+   ========================================== */
+
+.email-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.email-card {
+  background: white;
+  border: 1px solid #e7e8ec;
+  border-radius: 10px;
+  padding: 17px;
+  display: flex;
+  gap: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.email-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #6d28d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.email-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.email-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.email-top span {
+  color: #888;
+  font-size: 13px;
+}
+
+.email-content h3 {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.email-content p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+
+/* ==========================================
+   AI ASSISTANT
+   ========================================== */
+
+.assistant {
+  width: 330px;
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.assistant-header {
+  padding: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #6d28d9;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.assistant-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.assistant-header p {
+  margin: 3px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.assistant-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.welcome-message {
+  background: #f6f3ff;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.welcome-message p {
+  color: #666;
+  line-height: 1.5;
+}
+
+.suggestion {
+  background: white;
+  border: 1px solid #ddd5ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 9px;
+  font-size: 13px;
+  color: #5b21b6;
+}
+
+.assistant-input {
+  padding: 15px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 8px;
+}
+
+.assistant-input input {
+  flex: 1;
+  padding: 11px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+}
+
+.assistant-input input:focus {
+  border-color: #6d28d9;
+}
+
+.assistant-input button {
+  width: 42px;
+  border: none;
+  border-radius: 8px;
+  background: #6d28d9;
+  color: white;
+}
+
+.assistant-input button:hover {
+  background: #5b21b6;
+}
+
+
+/* ==========================================
+   COMPOSE WINDOW
+   ========================================== */
+
+.compose-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.compose-window {
+  width: 520px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.compose-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compose-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-button {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #777;
+  cursor: pointer;
+}
+
+.compose-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #eeeeee;
+  padding: 15px 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.compose-input:focus {
+  background: #fafafa;
+}
+
+.compose-message {
+  width: 100%;
+  height: 220px;
+  border: none;
+  padding: 18px 20px;
+  resize: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.compose-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eeeeee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.send-button {
+  border: none;
+  background: #6d28d9;
+  color: white;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.send-button:hover {
+  opacity: 0.9;
+}
+
+
+/* ==========================================
+   EMAIL DETAIL
+   ========================================== */
+
+.email-detail {
+  padding: 30px;
+}
+
+.back-button {
+  border: none;
+  background: transparent;
+  color: #6d28d9;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 8px 0;
+}
+
+.back-button:hover {
+  color: #4c1d95;
+}
+
+.email-detail-header {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #6d28d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.email-detail-header h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+  color: #111827;
+}
+
+.email-detail-header p {
+  margin: 6px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.email-detail-body {
+  padding: 30px 10px;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  color: #1f2937;
+  overflow-wrap: anywhere;
+}
+
+
+/* ==========================================
+   EMAIL STATUS
+   ========================================== */
+
+.email-status {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.email-status.error {
+  color: #b91c1c;
+}
+
+.retry-button {
+  margin-left: 10px;
+  border: none;
+  background: #6d28d9;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background: #5b21b6;
+}
+
+
+/* ==========================================
+   REPLY
+   ========================================== */
+
+.reply-button {
+  display: inline-block;
+  margin: 20px 0;
+  border: none;
+  background: #6d28d9;
+  color: white;
+  padding: 11px 20px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reply-button:hover {
+  background: #5b21b6;
+}
+
+.reply-box {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.reply-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #111827;
+}
+
+.reply-box .compose-input {
+  background: white;
+}
+
+.reply-box .compose-message {
+  background: white;
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  margin-top: 10px;
+  height: 180px;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cancel-reply {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cancel-reply:hover {
+  background: #f3f4f6;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 1100px) {
+  .assistant {
+    width: 290px;
+  }
+
+  .sidebar {
+    width: 210px;
+  }
+
+  .main {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 850px) {
+  .assistant {
+    display: none;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .search-box {
+    width: 220px;
+  }
+}
+/* ==========================================
+   AI ASSISTANT MESSAGES
+   ========================================== */
+
+.assistant-message {
+  padding: 11px 13px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.user-message {
+  background: #6d28d9;
+  color: white;
+  margin-left: 25px;
+}
+
+.ai-message {
+  background: #f3f0ff;
+  color: #374151;
+  margin-right: 10px;
+}
+
+
+/* ==========================================
+   AI SUGGESTION BUTTONS
+   ========================================== */
+
+.suggestion {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid #ddd5ff;
+}
+
+.suggestion:hover {
+  background: #f6f3ff;
+}
+
+
+/* ==========================================
+   AI FILTER BANNER
+   ========================================== */
+
+.ai-filter-banner {
+  background: #f3f0ff;
+  border: 1px solid #ddd5ff;
+  color: #5b21b6;
+  padding: 10px 13px;
+  border-radius: 9px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ai-filter-banner button {
+  border: none;
+  background: white;
+  color: #6d28d9;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-filter-banner button:hover {
+  background: #eee7ff;
+}
+
+
+/* ==========================================
+   ASSISTANT BUTTON STATES
+   ========================================== */
+
+.assistant-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* ==========================================
+   SENT + AI ASSISTANT MESSAGES
+   ========================================== */
+
+.ai-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f6f3ff;
+  border: 1px solid #ddd5ff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  color: #5b21b6;
+  font-weight: 600;
+}
+
+.ai-filter-bar button {
+  border: none;
+  background: white;
+  color: #6d28d9;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.ai-filter-bar button:hover {
+  background: #eee7ff;
+}
+
+.assistant-message {
+  background: #f6f3ff;
+  padding: 11px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.assistant-user-message {
+  background: #6d28d9;
+  color: white;
+  padding: 11px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  line-height: 1.45;
+  text-align: right;
+}
+/* ==========================================
+   AI CONFIRMATION
+   ========================================== */
+
+.ai-confirmation {
+  background: #f6f3ff;
+  border: 1px solid #ddd5ff;
+  color: #5b21b6;
+  padding: 12px 14px;
+  border-radius: 9px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.compose-confirmation {
+  margin: 15px 20px 0;
+}
+
+
+/* ==========================================
+   AI FILTER BAR
+   ========================================== */
+
+.ai-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f6f3ff;
+  border: 1px solid #ddd5ff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  color: #5b21b6;
+  font-weight: 600;
+}
+
+.ai-filter-bar button {
+  border: none;
+  background: white;
+  color: #6d28d9;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-filter-bar button:hover {
+  background: #eee7ff;
+}
+
+/* =========================================================
+   NEBULA MAIL — UI POLISH
+   Existing layout and functionality are preserved.
+   ========================================================= */
+
+:root {
+  --nebula-purple: #6d28d9;
+  --nebula-purple-dark: #5b21b6;
+  --nebula-border: #e8e8ef;
+  --nebula-shadow: 0 8px 28px rgba(31, 24, 54, 0.08);
+}
+
+body {
+  background: #f7f7fb;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  transition: border-color .18s ease, box-shadow .18s ease,
+              background-color .18s ease, transform .18s ease,
+              opacity .18s ease;
+}
+
+.sidebar {
+  background: rgba(255,255,255,.97);
+  box-shadow: 2px 0 18px rgba(31,24,54,.03);
+  z-index: 2;
+}
+
+.logo { letter-spacing: -.3px; }
+
+.logo-icon,
+.profile,
+.ai-icon {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  box-shadow: 0 5px 14px rgba(109,40,217,.20);
+}
+
+.compose-button,
+.send-button,
+.reply-button,
+.assistant-input button {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  box-shadow: 0 5px 14px rgba(109,40,217,.16);
+}
+
+.compose-button:hover,
+.send-button:hover,
+.reply-button:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(109,40,217,.24);
+}
+
+.nav-item { color: #4b5563; }
+
+.nav-item:hover {
+  background: #f5f2ff;
+  color: var(--nebula-purple-dark);
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, #eee7ff, #f5f2ff);
+  color: var(--nebula-purple-dark);
+}
+
+.main { background: #f7f7fb; }
+
+.header h1 { letter-spacing: -.6px; }
+
+.search-box {
+  border-color: #dedee7;
+  box-shadow: 0 2px 8px rgba(31,24,54,.03);
+}
+
+.search-box:focus-within {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.10);
+}
+
+/* Real-time Gmail status */
+.live-sync-indicator {
+  padding: 7px 11px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(31,24,54,.04);
+}
+
+.live-sync-indicator span:first-child { font-size: 10px; }
+
+.email-list { gap: 10px; }
+
+.email-card {
+  border-color: var(--nebula-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(31,24,54,.02);
+}
+
+.email-card:hover {
+  transform: translateY(-2px);
+  border-color: #ddd3ff;
+  box-shadow: var(--nebula-shadow);
+}
+
+.avatar,
+.detail-avatar {
+  background: linear-gradient(135deg, #f0eaff, #e7ddff);
+  color: var(--nebula-purple-dark);
+}
+
+.assistant {
+  box-shadow: -3px 0 18px rgba(31,24,54,.035);
+}
+
+.welcome-message {
+  background: linear-gradient(145deg, #f7f3ff, #f1ecff);
+  border: 1px solid #e7defe;
+}
+
+.suggestion {
+  background: #fff;
+  border-color: #e0d5ff;
+  transition: transform .16s ease, background-color .16s ease,
+              border-color .16s ease, box-shadow .16s ease;
+}
+
+.suggestion:hover {
+  background: #faf8ff;
+  border-color: #c9b7ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109,40,217,.08);
+}
+
+.assistant-input input {
+  border-color: #dedee7;
+  background: #fafafa;
+}
+
+.assistant-input input:focus {
+  border-color: #8b5cf6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.10);
+}
+
+.assistant-input button:hover {
+  transform: translateY(-1px);
+}
+
+.assistant-message,
+.ai-message {
+  border: 1px solid #ebe6f8;
+}
+
+.user-message,
+.assistant-user-message {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  box-shadow: 0 3px 10px rgba(109,40,217,.12);
+}
+
+.ai-filter-banner,
+.ai-filter-bar,
+.ai-confirmation {
+  background: linear-gradient(145deg, #f7f3ff, #f2edff);
+  border-color: #e2d8ff;
+}
+
+.ai-filter-banner button,
+.ai-filter-bar button {
+  border: 1px solid #e7defe;
+}
+
+.ai-filter-banner button:hover,
+.ai-filter-bar button:hover {
+  background: #eee7ff;
+  border-color: #d4c4ff;
+}
+
+.compose-overlay {
+  background: rgba(17,12,28,.42);
+  backdrop-filter: blur(3px);
+}
+
+.compose-window {
+  border: 1px solid #e8e3f1;
+  box-shadow: 0 24px 70px rgba(24,18,38,.22);
+}
+
+.close-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.close-button:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.compose-input:focus,
+.compose-message:focus {
+  background: #fbfaff;
+}
+
+.email-detail {
+  background: #fff;
+  border: 1px solid var(--nebula-border);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(31,24,54,.04);
+}
+
+.back-button { border-radius: 8px; }
+
+.back-button:hover {
+  background: #f5f2ff;
+  padding-left: 9px;
+  padding-right: 9px;
+}
+
+.reply-box {
+  background: #faf9fd;
+  border-color: #e6e1ef;
+  box-shadow: 0 3px 12px rgba(31,24,54,.035);
+}
+
+.reply-box .compose-input,
+.reply-box .compose-message {
+  border-color: #e1e1e8;
+}
+
+.reply-box .compose-input:focus,
+.reply-box .compose-message:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.08);
+}
+
+.retry-button {
+  box-shadow: 0 4px 10px rgba(109,40,217,.14);
+}
+
+.assistant-body::-webkit-scrollbar,
+.main::-webkit-scrollbar { width: 7px; }
+
+.assistant-body::-webkit-scrollbar-thumb,
+.main::-webkit-scrollbar-thumb {
+  background: #d8d1e6;
+  border-radius: 10px;
+}
+
+.assistant-body::-webkit-scrollbar-track,
+.main::-webkit-scrollbar-track { background: transparent; }
+
+@media (max-width: 850px) {
+  .main { padding: 20px; }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-box {
+    flex: 1;
+    width: auto;
+  }
+
+  .compose-window {
+    width: min(520px, calc(100vw - 30px));
+  }
+
+  .email-detail { border-radius: 10px; }
+}

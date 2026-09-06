@@ -1,0 +1,7 @@
+credentials.json
+credentials_desktop.json
+token.json
+.env
+pubsub-credentials.json
+gmail_watch_state.json
+__pycache__/

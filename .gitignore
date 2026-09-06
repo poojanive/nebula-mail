@@ -1,0 +1,26 @@
+# Google / Gmail credentials
+backend/credentials.json
+backend/credentials_desktop.json
+backend/token.json
+backend/pubsub-credentials.json
+backend/gmail_watch_state.json
+
+# Environment variables
+backend/.env
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
