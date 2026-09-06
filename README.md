@@ -1,21 +1,31 @@
-# Nebula Mail — AI-Powered Mail Web Application
+# Nebula Mail
 
-An email client where the AI assistant doesn't just answer questions in a chat box — it **drives the interface**: opening Compose, filling in fields, switching views, and surfacing search results directly in the main UI.
+**An AI-powered mail application where the assistant doesn't just talk about your inbox — it operates it.**
 
-Built for the Nebula KnowLab hiring task.
+
+
+---
+
+## The idea
+
+Most "AI email assistants" are a chatbot bolted onto the side of an inbox. Ask it something, it replies in a text bubble, and you're left to do the actual work yourself.
+
+Nebula Mail takes a different position: the assistant *is* the interface. Say "show my sent emails" and the app switches to Sent. Say "compose an email to John saying I'll send the report tomorrow" and the Compose window opens, populated, ready for review. Say "reply to this" while an email is open, and it knows exactly which email you mean.
+
+Natural language becomes application state. That's the whole premise, and it's what this build is designed to prove.
 
 ---
 
 ## Demo
 
-- 🎥 **Video walkthrough:** `<insert link — Loom/YouTube unlisted/Drive>`
-- 📸 **Screenshots:** see `/screenshots` in this repo
+- 🎥 **Video walkthrough:** `<insert link — Loom / YouTube unlisted / Drive>`
+- 📸 **Screenshots:** `<add screenshots here when available>`
 
-The video shows: AI compose → AI search/filter → AI navigation to a specific email → context-aware reply → live real-time sync (an email arriving without a manual refresh).
+The walkthrough covers: AI-assisted composition, natural-language search and filtering, navigation between Inbox and Sent, opening a specific email, a context-aware reply, and a live email arriving with zero manual refresh.
 
 ---
 
-## Architecture
+## How it works
 
 ```
                     ┌─────────────┐
@@ -24,130 +34,244 @@ The video shows: AI compose → AI search/filter → AI navigation to a specific
                     └─────────────┘                │
                                                     ▼
 ┌──────────┐   REST    ┌─────────────┐      ┌─────────────┐
-│  React   │◀─────────▶│   FastAPI    │◀────▶│  Gmail API  │
-│ Frontend │           │   Backend    │      │             │
+│  React   │◀─────────▶│   FastAPI   │◀────▶│  Gmail API  │
+│ Frontend │           │   Backend   │      │             │
 └──────────┘           └─────────────┘      └─────────────┘
      ▲                        ▲
-     │  syncVersion poll      │  Pub/Sub push
+     │ syncVersion poll       │ Pub/Sub notification
      │                        │
      └────────────────┌───────┴────────┐
-                       │  Gmail Watch    │
-                       │  + Google       │
-                       │  Cloud Pub/Sub  │
-                       └─────────────────┘
+                       │  Gmail Watch   │
+                       │  + Google      │
+                       │  Cloud Pub/Sub │
+                       └────────────────┘
 ```
 
-**Flow for an assistant-driven action** (e.g. "compose an email to X saying Y"):
+### The assistant loop
 
-1. User types a natural-language instruction into the assistant panel.
-2. Frontend sends it to `POST /api/assistant`.
-3. Backend prompts Gemini to return a **structured action** (`compose`, `search`, `filter`, `open_email`, `reply`, `navigate`) rather than free text.
-4. React receives the action and updates real UI state — the Compose form visibly fills in, the inbox list re-renders with filtered results, etc.
-5. For anything that sends mail, the assistant stops at "prepared" state — the user reviews and clicks Send themselves. Nothing is sent without human confirmation.
+Take a request like *"compose an email to X saying Y"*:
 
-**Real-time sync flow:**
+1. The user types the instruction into the assistant panel.
+2. React sends it to `POST /api/assistant`.
+3. FastAPI hands it to Gemini, which returns a **structured action** — not prose.
+4. React reads the action and updates real UI state accordingly.
+5. For compose or reply, the relevant form opens, populated and visible.
+6. The user reviews the message and clicks **Send** themselves.
 
-Gmail Watch → Google Cloud Pub/Sub topic (`gmail-notifications`) → FastAPI background listener on the subscription → backend increments a `syncVersion` → React polls `/api/sync-status` and refreshes the inbox when the version changes.
+The assistant's output is never just an answer — it's an instruction the interface acts on.
+
+### Real-time sync
+
+```
+Gmail → Gmail Watch → Google Cloud Pub/Sub → FastAPI listener
+      → syncVersion updates → React detects the change → Inbox refreshes
+```
+
+When a new message lands in Gmail, a Pub/Sub notification reaches the backend, which bumps a `syncVersion` counter. The frontend polls a lightweight `/api/sync-status` endpoint and refreshes the moment that version changes — no manual reload required. A periodic fallback refresh sits underneath this in case a push notification is ever delayed.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-| Layer | Choice |
+| Layer | Technology |
 |---|---|
 | Frontend | React + Vite |
-| Backend | FastAPI (Python) |
+| Backend | FastAPI (Python) + Uvicorn |
 | Mail provider | Gmail API |
-| AI assistant | Google Gemini API (`gemini-3.6-flash`) |
-| Real-time | Gmail API Watch + Google Cloud Pub/Sub |
-| Styling | Plain CSS |
+| Authentication | Google OAuth 2.0 |
+| AI assistant | Google Gemini API |
+| Real-time notifications | Gmail Watch + Google Cloud Pub/Sub |
+| Styling | CSS |
 
 ---
 
-## Setup & Local Run
+## What's implemented
+
+**Gmail integration** — real inbox and sent data (no mocks), email detail view, real sending, reply with correct Gmail threading (`threadId`, `In-Reply-To`, `References`), and search/filtering.
+
+**AI assistant** — understands and acts on instructions such as:
+
+- *"Show my sent emails"* → switches the interface to Sent
+- *"Show me emails from LinkedIn"* → filters the main list
+- *"Compose an email to poojanivethidha.2302139@srec.ac.in saying hello, this is a test from Nebula Mail"* → opens Compose, fills recipient and body
+- *"Open the latest email from David"* → navigates directly to that email
+- *"Reply to this email saying thank you for your message"* (with an email already open) → opens Reply, using the currently selected email as context
+
+**Human-in-the-loop sending** — the assistant prepares the message and opens the relevant form, but the send action always belongs to the user:
+
+```
+Request → AI interprets → Compose/Reply opens → fields filled → user reviews → user clicks Send
+```
+
+No email leaves the account without a person explicitly sending it.
+
+**Context awareness** — the currently open email is passed to the assistant as state, so "reply to this" resolves correctly without the user having to name or re-describe the email.
+
+**Email body normalization** — Gmail messages arrive in inconsistent MIME shapes; the backend detects and cleans HTML-in-plain-text (and the reverse) so every message renders consistently.
+
+---
+
+## Project structure
+
+```
+nebula-mail/
+├── backend/
+│   ├── main.py
+│   ├── gmail_test.py
+│   └── .gitignore
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── package.json
+│   ├── package-lock.json
+│   └── vite.config.js
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Running it locally
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- A Google Cloud project with the **Gmail API** enabled
-- A **Gemini API key** (Google AI Studio, free tier)
+- Python 3.13+
+- Node.js 24+
+- Git
+- A Google Cloud project with the Gmail API enabled, plus OAuth credentials and a Pub/Sub setup
+- A Gemini API key
 
-### 1. Google Cloud / Gmail setup
-1. Create a Google Cloud project and enable the Gmail API.
-2. Create OAuth 2.0 credentials (Desktop app type) and download as `credentials.json`.
-3. Set up a Pub/Sub topic and subscription for real-time notifications, and grant `gmail-api-push@system.gserviceaccount.com` the **Pub/Sub Publisher** role on the topic.
-4. Create a service account for the backend to consume Pub/Sub messages, download its key as `pubsub-credentials.json`, and grant it **Pub/Sub Subscriber** on the subscription.
+### 1. Clone
+```bash
+git clone https://github.com/poojanive/nebula-mail.git
+cd nebula-mail
+```
 
 ### 2. Backend
-```bash
+```powershell
 cd backend
 python -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Place these in the backend root (never commit them):
-#   credentials.json
-#   pubsub-credentials.json
-# Create a .env with:
-#   GEMINI_API_KEY=your_key_here
-
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+venv\Scripts\activate
+pip install fastapi uvicorn google-api-python-client google-auth-httplib2 google-auth-oauthlib google-cloud-pubsub google-genai python-dotenv email-validator
 ```
-First run will open a browser OAuth consent flow and save `token.json` locally.
+Place `credentials.json` and `pubsub-credentials.json` in the `backend` directory, and add a `.env` file with your Gemini API key. None of these are committed to Git.
+
+```powershell
+uvicorn main:app --reload --port 8000
+```
+Backend runs at `http://127.0.0.1:8000`.
 
 ### 3. Frontend
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
-App runs at `http://localhost:5173`, talking to the backend at `http://127.0.0.1:8000`.
+Frontend runs at `http://localhost:5173`.
 
-### 4. Start Gmail Watch (enables real-time sync)
-```bash
-curl -X POST http://127.0.0.1:8000/api/gmail/watch
+### 4. Gmail OAuth scopes in use
 ```
-Note: Gmail Watch registrations expire after ~7 days and need renewing.
+https://www.googleapis.com/auth/gmail.readonly
+https://www.googleapis.com/auth/gmail.send
+```
+The OAuth token is stored locally and excluded from Git.
+
+### 5. Pub/Sub configuration
+```
+Topic: gmail-notifications
+Subscription: gmail-notifications-sub
+```
+Gmail's publishing service account is granted permission to publish to the topic; a separate backend service account consumes messages from the subscription. Its key is stored locally and excluded from Git.
+
+### 6. Start Gmail Watch
+```powershell
+Invoke-RestMethod -Method POST http://127.0.0.1:8000/api/gmail/watch
+```
+Watch registrations expire periodically and need renewing.
 
 ---
 
-## Architecture Decisions & Trade-offs
+## Security
 
-- **Structured actions over free-form chat replies.** The assistant endpoint returns a typed action object (`{action: "compose", to, subject, body}` etc.) instead of prose, so the frontend can deterministically drive UI state. This was the central design choice the task was evaluating for, and made every downstream feature (fill-form, search, navigate) implementable the same way.
-- **Human confirmation before send.** The AI prepares compose/reply content and opens the relevant view, but never calls the send endpoint itself. This trades a small amount of "wow factor" for safety and matches the bonus criterion explicitly listed in the brief.
-- **Polling `syncVersion` instead of WebSockets.** Pub/Sub already pushes to the backend in near-real-time; rather than adding a second real-time channel (WebSocket) to the frontend, the React app does lightweight polling against a version counter. Simpler to implement and debug under a 5-day deadline, at the cost of slightly higher latency than a full push-to-client socket would give.
-- **Backend fallback for simple navigation commands** (e.g. "show my inbox / sent"). Added after observing occasional Gemini 503s — keeps basic navigation responsive even if the LLM call fails, without weakening the "AI controls the UI" requirement for the harder cases (compose, search, context-aware reply), which still route through Gemini.
-- **HTML email body normalization.** Some Gmail messages return HTML in a `text/plain` payload or vice versa; the backend detects and cleans this so the reading experience stays consistent regardless of how a given message was originally encoded.
-
----
-
-## What's Implemented
-
-- [x] Real Gmail inbox and sent folder (no mock data)
-- [x] Compose and send via real Gmail API
-- [x] Reply with correct threading (`threadId`, `In-Reply-To`, `References`)
-- [x] AI assistant: compose/fill, search/filter, navigate, context-aware reply
-- [x] Human-in-the-loop confirmation before any send
-- [x] Real-time inbox sync via Gmail Watch + Pub/Sub (no manual refresh)
-- [x] HTML/plain-text email body handling
-
-## What I'd Improve With More Time
-
-- Move from `syncVersion` polling to a proper WebSocket/SSE push to the client for lower-latency updates
-- Rich inline previews in the assistant panel (sender avatar, snippet cards) instead of text-only responses
-- Thread/conversation view for multi-message email chains
-- Automated tests around the assistant's action-parsing logic, since that's the most failure-prone surface
-- Renewal automation for the Gmail Watch subscription (currently a manual `curl` call)
-
----
-
-## Security Notes
-
-The following are excluded via `.gitignore` and are **not** present in this repository:
+Nothing sensitive lives in this repository. The following are gitignored:
 ```
 credentials.json
 credentials_desktop.json
 token.json
 pubsub-credentials.json
+gmail_watch_state.json
 .env
+venv/
+node_modules/
 ```
+No OAuth tokens, Gemini keys, or service-account credentials are committed at any point in the history.
+
+---
+
+## Design decisions
+
+**Structured actions, not free-form replies.** Gemini returns a typed action (`compose`, `search`, `filter`, `open`, `open_latest`, `reply`, `inbox`, `sent`) rather than natural-language text. This gives the frontend a predictable contract to translate AI intent into real UI changes, and makes the assistant straightforward to extend with new actions later.
+
+**Confirmation before sending.** The assistant can fill a form; it cannot press Send. This was a deliberate trade of a small amount of "wow" for keeping the human in control of what actually leaves the account.
+
+**Polling over WebSockets.** Pub/Sub already delivers the real-time event server-side. Rather than standing up a second real-time channel to the browser, the frontend checks a lightweight sync endpoint and reacts to version changes — smaller surface area, easier to reason about, still effectively instant.
+
+**A fallback refresh underneath the push path.** If a Pub/Sub notification is ever delayed, the periodic refresh means the user still isn't stuck looking at stale data.
+
+---
+
+## Testing performed
+
+All of the following were run against a real, connected Gmail account:
+
+| Scenario | Result |
+|---|---|
+| "Show my sent emails" | Switched to Sent, displayed real messages |
+| "Show me emails from LinkedIn" | Filtered the main list correctly |
+| AI compose to a real address | Compose opened, fields populated, email sent on review |
+| Context-aware reply | Reply opened for the selected email, sent with correct threading |
+| Real-time sync | A newly received email appeared automatically, no manual refresh |
+
+---
+
+## Hiring task coverage
+
+| Requirement | Status |
+|---|---|
+| Real mail provider integration | ✅ Gmail API |
+| Inbox / Sent / Detail views | ✅ |
+| Compose & real sending | ✅ |
+| AI compose & field-filling | ✅ |
+| AI search / filtering | ✅ |
+| AI navigation | ✅ |
+| Context-aware assistant | ✅ |
+| Reply with Gmail threading | ✅ |
+| Real-time sync | ✅ Gmail Watch + Pub/Sub |
+| Human confirmation before sending | ✅ |
+| Polished UI | ✅ |
+
+---
+
+## Current scope
+
+Deliberately out of scope for this task: attachments, forwarding, full thread/conversation visualization, multi-provider or multi-account support, rich-text composition, and production deployment. All are natural next steps rather than oversights.
+
+## What I'd build next
+
+- Server-Sent Events or WebSockets for genuinely instant push updates
+- Conversation/thread grouping
+- Attachment handling and forwarding
+- AI-generated thread summaries
+- Automated tests around the assistant's action-parsing logic
+- Automatic Gmail Watch renewal
+- Production-grade OAuth and secret management
+
+---
+
+## Author
+
+**Pooja Nivethidha M** — final-year ECE, Sri Ramakrishna Engineering College
+Built for the Nebula KnowLab 2027 Hiring Task.
