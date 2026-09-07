@@ -33,6 +33,13 @@ function App() {
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   // =========================================================
+  // AI EMAIL INTELLIGENCE
+  // =========================================================
+
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+
+  // =========================================================
   // COMPOSE
   // =========================================================
 
@@ -393,6 +400,8 @@ function App() {
       setLoadingDetail(true);
       setSelectedEmail(email);
       setEmailBody("");
+      setAiAnalysis(null);
+      setAiAnalyzing(false);
       setIsReplying(false);
       setAiReplyPending(false);
 
@@ -420,9 +429,67 @@ function App() {
     }
   };
 
+  // =========================================================
+  // ANALYZE CURRENT EMAIL WITH AI
+  // =========================================================
+
+  const analyzeSelectedEmail = async () => {
+    if (!selectedEmail || aiAnalyzing) {
+      return;
+    }
+
+    try {
+      setAiAnalyzing(true);
+      setAiAnalysis(null);
+
+      const response = await fetch(
+        `${API_BASE}/api/analyze-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: {
+              from: selectedEmail.from || "",
+              to: selectedEmail.to || "",
+              subject: selectedEmail.subject || "",
+              date: selectedEmail.date || "",
+              body: emailBody || selectedEmail.snippet || "",
+              snippet: selectedEmail.snippet || "",
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || "AI analysis failed"
+        );
+      }
+
+      setAiAnalysis(data.analysis || null);
+    } catch (err) {
+      console.error(
+        "AI email analysis error:",
+        err
+      );
+
+      setAiAnalysis({
+        error: "Unable to analyze this email right now.",
+      });
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
+
   const closeEmailDetail = () => {
     setSelectedEmail(null);
     setEmailBody("");
+    setAiAnalysis(null);
+    setAiAnalyzing(false);
     setIsReplying(false);
     setAiReplyPending(false);
   };
@@ -851,6 +918,92 @@ function App() {
           return;
         }
       }
+    }
+  };
+
+  // =========================================================
+  // AI SUGGESTION BUTTONS
+  // =========================================================
+
+  const handleSuggestionClick = async (suggestionText) => {
+    if (assistantLoading) {
+      return;
+    }
+
+    addAssistantMessage("user", suggestionText);
+    setAssistantInput("");
+    setAssistantLoading(true);
+
+    try {
+      const context = {
+        currentFolder,
+        selectedEmail: selectedEmail
+          ? {
+              id: selectedEmail.id,
+              from: selectedEmail.from,
+              to: selectedEmail.to,
+              subject: selectedEmail.subject,
+              threadId:
+                selectedEmail.threadId ||
+                selectedEmail.thread_id ||
+                "",
+              messageId:
+                selectedEmail.messageId ||
+                selectedEmail.message_id ||
+                "",
+            }
+          : null,
+      };
+
+      const response = await fetch(
+        `${API_BASE}/api/assistant`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: suggestionText,
+            context,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || "Assistant request failed"
+        );
+      }
+
+      if (data.action) {
+        await executeAssistantAction(data.action);
+      } else if (
+        data.result &&
+        data.result.action
+      ) {
+        await executeAssistantAction(data.result);
+      } else {
+        addAssistantMessage(
+          "assistant",
+          data.response ||
+            data.message ||
+            "I processed your request."
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Assistant suggestion error:",
+        err
+      );
+
+      addAssistantMessage(
+        "assistant",
+        "Sorry, I couldn't process that request."
+      );
+    } finally {
+      setAssistantLoading(false);
     }
   };
 
@@ -1431,9 +1584,170 @@ function App() {
 
                 )}
 
+                {/* AI EMAIL INTELLIGENCE */}
+                <div
+                  style={{
+                    marginTop: "20px",
+                    marginBottom: "20px",
+                    padding: "18px",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(124, 92, 255, 0.20)",
+                    background:
+                      "linear-gradient(135deg, rgba(124, 92, 255, 0.08), rgba(255, 255, 255, 0.96))",
+                    boxShadow: "0 8px 24px rgba(35, 25, 80, 0.07)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      marginBottom: aiAnalysis ? "16px" : "0",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: "15px", fontWeight: "700", marginBottom: "3px" }}>
+                        ✦ AI Email Intelligence
+                      </div>
+                      <div style={{ fontSize: "12px", opacity: 0.68 }}>
+                        Understand the priority and action needed
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={analyzeSelectedEmail}
+                      disabled={aiAnalyzing}
+                      style={{
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "9px 13px",
+                        cursor: aiAnalyzing ? "not-allowed" : "pointer",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        opacity: aiAnalyzing ? 0.7 : 1,
+                        background: "#6c4cff",
+                        color: "#ffffff",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {aiAnalyzing
+                        ? "Analyzing..."
+                        : aiAnalysis
+                        ? "↻ Analyze Again"
+                        : "✨ Analyze with AI"}
+                    </button>
+                  </div>
+
+                  {aiAnalysis?.error && (
+                    <div
+                      style={{
+                        padding: "11px 12px",
+                        borderRadius: "10px",
+                        background: "rgba(220, 38, 38, 0.08)",
+                        fontSize: "13px",
+                      }}
+                    >
+                      {aiAnalysis.error}
+                    </div>
+                  )}
+
+                  {aiAnalysis && !aiAnalysis.error && (
+                    <>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <span style={{
+                          padding: "6px 10px",
+                          borderRadius: "999px",
+                          background: "rgba(108, 76, 255, 0.11)",
+                          fontSize: "12px",
+                          fontWeight: "700",
+                        }}>
+                          🏷️ {aiAnalysis.category}
+                        </span>
+
+                        <span style={{
+                          padding: "6px 10px",
+                          borderRadius: "999px",
+                          background:
+                            aiAnalysis.priority === "High"
+                              ? "rgba(220, 38, 38, 0.10)"
+                              : aiAnalysis.priority === "Medium"
+                              ? "rgba(234, 179, 8, 0.13)"
+                              : "rgba(34, 197, 94, 0.11)",
+                          fontSize: "12px",
+                          fontWeight: "700",
+                        }}>
+                          {aiAnalysis.priority === "High"
+                            ? "🔴"
+                            : aiAnalysis.priority === "Medium"
+                            ? "🟡"
+                            : "🟢"}{" "}
+                          {aiAnalysis.priority} Priority
+                        </span>
+
+                        <span style={{
+                          padding: "6px 10px",
+                          borderRadius: "999px",
+                          background: aiAnalysis.actionNeeded
+                            ? "rgba(249, 115, 22, 0.11)"
+                            : "rgba(34, 197, 94, 0.11)",
+                          fontSize: "12px",
+                          fontWeight: "700",
+                        }}>
+                          {aiAnalysis.actionNeeded
+                            ? "⚡ Action Needed"
+                            : "✓ No Action Needed"}
+                        </span>
+                      </div>
+
+                      <div style={{ display: "grid", gap: "12px" }}>
+                        <div>
+                          <div style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            opacity: 0.55,
+                            marginBottom: "5px",
+                          }}>
+                            Summary
+                          </div>
+                          <div style={{ fontSize: "13px", lineHeight: 1.55 }}>
+                            {aiAnalysis.summary || "No summary available."}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            opacity: 0.55,
+                            marginBottom: "5px",
+                          }}>
+                            Why
+                          </div>
+                          <div style={{ fontSize: "13px", lineHeight: 1.55 }}>
+                            {aiAnalysis.reason || "No additional explanation available."}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
                 {/* BODY */}
 
-                <div className="email-detail-body">
+<div className="email-detail-body">
                   {emailBody ||
                     "No message content available."}
                 </div>
@@ -1488,29 +1802,70 @@ function App() {
                 mail interface for you.
               </p>
 
-              <div className="suggestion">
-                “Compose an email to
-                someone@example.com saying
-                hello”
-              </div>
+              <button
+                type="button"
+                className="suggestion"
+                onClick={() =>
+                  handleSuggestionClick(
+                    "Compose an email to someone@example.com saying hello"
+                  )
+                }
+                disabled={assistantLoading}
+              >
+                “Compose an email to someone@example.com saying hello”
+              </button>
 
-              <div className="suggestion">
+              <button
+                type="button"
+                className="suggestion"
+                onClick={() =>
+                  handleSuggestionClick(
+                    "Show me emails from LinkedIn"
+                  )
+                }
+                disabled={assistantLoading}
+              >
                 “Show me emails from LinkedIn”
-              </div>
+              </button>
 
-              <div className="suggestion">
-                “Open the latest email from
-                LinkedIn”
-              </div>
+              <button
+                type="button"
+                className="suggestion"
+                onClick={() =>
+                  handleSuggestionClick(
+                    "Open the latest email from LinkedIn"
+                  )
+                }
+                disabled={assistantLoading}
+              >
+                “Open the latest email from LinkedIn”
+              </button>
 
-              <div className="suggestion">
+              <button
+                type="button"
+                className="suggestion"
+                onClick={() =>
+                  handleSuggestionClick(
+                    "Show my sent emails"
+                  )
+                }
+                disabled={assistantLoading}
+              >
                 “Show my sent emails”
-              </div>
+              </button>
 
-              <div className="suggestion">
-                “Reply to this email saying
-                thank you”
-              </div>
+              <button
+                type="button"
+                className="suggestion"
+                onClick={() =>
+                  handleSuggestionClick(
+                    "Reply to this email saying thank you"
+                  )
+                }
+                disabled={assistantLoading}
+              >
+                “Reply to this email saying thank you”
+              </button>
 
             </div>
 

@@ -8,6 +8,7 @@ from googleapiclient.discovery import build
 
 from email.mime.text import MIMEText
 from email import message_from_bytes
+from email.header import decode_header, make_header
 
 from dotenv import load_dotenv
 from google import genai
@@ -98,6 +99,10 @@ class ReplyRequest(BaseModel):
     body: str
     message_id: str | None = None
     thread_id: str | None = None
+
+
+class AnalyzeEmailRequest(BaseModel):
+    email: dict
 
 
 class AssistantRequest(BaseModel):
@@ -388,16 +393,16 @@ def get_emails(limit: int = 20):
                 value = header["value"]
 
                 if name == "From":
-                    email_info["from"] = value
+                    email_info["from"] = decode_mime_header(value)
 
                 elif name == "To":
-                    email_info["to"] = value
+                    email_info["to"] = decode_mime_header(value)
 
                 elif name == "Subject":
-                    email_info["subject"] = value
+                    email_info["subject"] = decode_mime_header(value)
 
                 elif name == "Date":
-                    email_info["date"] = value
+                    email_info["date"] = decode_mime_header(value)
 
                 elif name.lower() == "message-id":
                     email_info["messageId"] = value
@@ -472,7 +477,7 @@ def get_sent_emails(limit: int = 20):
             # Build a lookup so older/unusual sent messages are
             # parsed reliably as well.
             header_map = {
-                header.get("name", "").lower(): header.get("value", "")
+                header.get("name", "").lower(): decode_mime_header(header.get("value", ""))
                 for header in headers
             }
 
@@ -529,6 +534,23 @@ def get_sent_emails(limit: int = 20):
 
 
 # ==================================================
+# MIME header decoding
+# ==================================================
+
+def decode_mime_header(value: str) -> str:
+    """Decode Gmail MIME-encoded headers into normal readable text."""
+
+    if not value:
+        return ""
+
+    try:
+        return str(make_header(decode_header(value))).strip()
+    except Exception:
+        # Keep the original value if a malformed header is encountered.
+        return value.strip()
+
+
+# ==================================================
 # HTML email body cleanup
 # ==================================================
 
@@ -547,23 +569,9 @@ class EmailHTMLParser(HTMLParser):
             self.ignore_content = True
             return
 
-        if tag in {
-            "br",
-            "p",
-            "div",
-            "section",
-            "article",
-            "header",
-            "footer",
-            "tr",
-            "li",
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6"
-        }:
+        # <br> is an explicit line break. For block elements, wait until
+        # the closing tag so nested containers do not create large gaps.
+        if tag == "br":
             self.parts.append("\n")
 
     def handle_endtag(self, tag):
@@ -604,9 +612,11 @@ def html_to_text(html_content: str) -> str:
 
     text = "".join(parser.parts)
 
-    # Normalize whitespace while preserving useful line breaks.
+    # Normalize whitespace without letting nested HTML containers create
+    # large blank spaces in the rendered email.
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"[ \t]+", " ", text)
-    text = re.sub(r"\n[ \t]+", "\n", text)
+    text = re.sub(r"[ \t]*\n[ \t]*", "\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
 
     return text.strip()
@@ -726,22 +736,22 @@ def get_email_detail(email_id: str):
                 "Message-ID",
                 ""
             ),
-            "from": email_message.get(
+            "from": decode_mime_header(email_message.get(
                 "From",
                 ""
-            ),
-            "to": email_message.get(
+            )),
+            "to": decode_mime_header(email_message.get(
                 "To",
                 ""
-            ),
-            "subject": email_message.get(
+            )),
+            "subject": decode_mime_header(email_message.get(
                 "Subject",
                 "(No Subject)"
-            ),
-            "date": email_message.get(
+            )),
+            "date": decode_mime_header(email_message.get(
                 "Date",
                 ""
-            ),
+            )),
             "body": body
         }
 
@@ -908,6 +918,157 @@ def reply_email(reply: ReplyRequest):
             detail="Unable to send reply through Gmail"
         )
 
+
+# ==================================================
+# AI EMAIL INTELLIGENCE
+# ==================================================
+
+@app.post("/api/analyze-email")
+def analyze_email(request: AnalyzeEmailRequest):
+
+    try:
+
+        email_data = request.email or {}
+
+        # Keep the information sent to Gemini focused on the email itself.
+        email_context = {
+            "from": email_data.get("from", ""),
+            "to": email_data.get("to", ""),
+            "subject": email_data.get("subject", ""),
+            "date": email_data.get("date", ""),
+            "body": email_data.get("body", ""),
+            "snippet": email_data.get("snippet", "")
+        }
+
+        prompt = f"""
+You are the email intelligence engine inside an email application
+called Nebula Mail.
+
+Analyze the email below and return ONLY valid JSON.
+
+EMAIL:
+{json.dumps(email_context, ensure_ascii=False)}
+
+Classify the email using these rules.
+
+CATEGORY:
+Choose exactly ONE:
+- Work
+- College
+- Personal
+- Promotion
+- Other
+
+PRIORITY:
+Choose exactly ONE:
+- High
+- Medium
+- Low
+
+SUMMARY:
+Write a concise summary in 1 or 2 sentences.
+Do not invent information that is not present in the email.
+
+ACTION NEEDED:
+Return true if the recipient appears to need to do something,
+reply, confirm, attend, submit, decide, pay, review, or otherwise
+take action based on the email. Otherwise return false.
+
+REASON:
+Give a short explanation for the priority and whether action is needed.
+Only use information supported by the email.
+
+Return exactly this JSON structure:
+
+{{
+    "category": "Work",
+    "priority": "High",
+    "summary": "Short summary of the email.",
+    "actionNeeded": true,
+    "reason": "The email contains a time-sensitive request requiring a response."
+}}
+
+IMPORTANT:
+- Return JSON only.
+- Do not use markdown.
+- Do not add explanations outside the JSON.
+- Do not invent dates, deadlines, people, or actions.
+- Use boolean true/false for actionNeeded, not strings.
+"""
+
+        response = gemini_client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json"
+            }
+        )
+
+        analysis = json.loads(response.text)
+
+        # Validate the most important fields before returning them.
+        valid_categories = {
+            "Work",
+            "College",
+            "Personal",
+            "Promotion",
+            "Other"
+        }
+
+        valid_priorities = {
+            "High",
+            "Medium",
+            "Low"
+        }
+
+        if analysis.get("category") not in valid_categories:
+            analysis["category"] = "Other"
+
+        if analysis.get("priority") not in valid_priorities:
+            analysis["priority"] = "Medium"
+
+        analysis["actionNeeded"] = bool(
+            analysis.get("actionNeeded", False)
+        )
+
+        if not isinstance(analysis.get("summary"), str):
+            analysis["summary"] = ""
+
+        if not isinstance(analysis.get("reason"), str):
+            analysis["reason"] = ""
+
+        print("\nAI Email Intelligence")
+        print("Subject:", email_data.get("subject", ""))
+        print("Analysis:", analysis)
+
+        return {
+            "success": True,
+            "analysis": analysis
+        }
+
+    except json.JSONDecodeError as error:
+
+        print(
+            "AI Email Intelligence JSON error:",
+            error
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="AI email analysis returned invalid JSON"
+        )
+
+    except Exception as error:
+
+        print(
+            "AI Email Intelligence error:",
+            error
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to analyze email"
+        )
 
 # ==================================================
 # AI ASSISTANT
