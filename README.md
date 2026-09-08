@@ -2,7 +2,7 @@
 
 **A Gmail-powered mail client where the AI assistant doesn't just talk about your inbox — it operates it.**
 
-Built for the Nebula KnowLab 2027 Engineering Hiring Task.
+
 
 ---
 
