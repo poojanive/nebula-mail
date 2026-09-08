@@ -75,7 +75,7 @@ app = FastAPI(title="Nebula Mail API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173"
+        "http://localhost:5173",
         "https://nebula-mail-tau.vercel.app"
     ],
     allow_credentials=True,
