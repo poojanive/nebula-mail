@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.cloud import pubsub_v1
 
+from google.oauth2 import service_account
 import base64
 import os
 import json
@@ -76,7 +77,6 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173"
-        "https://nebula-mail-tau.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -251,7 +251,13 @@ def start_pubsub_listener():
     global sync_version
     global last_gmail_notification
 
-    subscriber = pubsub_v1.SubscriberClient()
+    pubsub_credentials = service_account.Credentials.from_service_account_file(
+        "pubsub-credentials.json"
+    )
+
+    subscriber = pubsub_v1.SubscriberClient(
+        credentials=pubsub_credentials
+    )
 
     subscription_path = subscriber.subscription_path(
         GOOGLE_CLOUD_PROJECT,
@@ -998,7 +1004,7 @@ IMPORTANT:
 """
 
         response = gemini_client.models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-3.5-flash-lite",
             contents=prompt,
             config={
                 "response_mime_type": "application/json"
@@ -1409,25 +1415,43 @@ IMPORTANT RULES
 
 
         # --------------------------------------------------
-        # Call Gemini
+        # Call Gemini with a small retry window
         # --------------------------------------------------
+        # Gemini can occasionally return a temporary service/rate
+        # limit error. A short retry makes the assistant much more
+        # reliable without changing the UI or user workflow.
 
-        response = gemini_client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt,
-            config={
-                "response_mime_type": "application/json"
-            }
-        )
+        action = None
+        last_gemini_error = None
 
+        for attempt in range(3):
+            try:
+                response = gemini_client.models.generate_content(
+                    model="gemini-3.5-flash-lite",
+                    contents=prompt,
+                    config={
+                        "response_mime_type": "application/json"
+                    }
+                )
 
-        # --------------------------------------------------
-        # Parse Gemini response
-        # --------------------------------------------------
+                action = json.loads(
+                    response.text
+                )
 
-        action = json.loads(
-            response.text
-        )
+                break
+
+            except Exception as error:
+                last_gemini_error = error
+                print(
+                    f"Gemini assistant attempt {attempt + 1}/3 failed:",
+                    error
+                )
+
+                if attempt < 2:
+                    time.sleep(1.0 * (attempt + 1))
+
+        if action is None:
+            raise last_gemini_error
 
 
         # --------------------------------------------------

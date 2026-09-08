@@ -1,7 +1,3 @@
-/* ==========================================
-   GLOBAL
-  git*/
-
 * {
   box-sizing: border-box;
 }
@@ -23,17 +19,11 @@ button {
   cursor: pointer;
 }
 
-
-
-
 .app {
   height: 100vh;
   display: flex;
   overflow: hidden;
 }
-
-
-
 
 .sidebar {
   width: 230px;
@@ -121,9 +111,6 @@ button {
   margin-top: auto;
 }
 
-
-
-
 .main {
   flex: 1;
   padding: 28px 35px;
@@ -153,9 +140,6 @@ button {
   gap: 15px;
 }
 
-
-
-
 .search-box {
   width: 280px;
   background: white;
@@ -172,9 +156,6 @@ button {
   width: 100%;
 }
 
-
-
-
 .profile {
   width: 38px;
   height: 38px;
@@ -186,9 +167,6 @@ button {
   justify-content: center;
   font-weight: bold;
 }
-
-
-
 
 .email-list {
   display: flex;
@@ -251,9 +229,6 @@ button {
   color: #777;
   font-size: 14px;
 }
-
-
-
 
 .assistant {
   width: 330px;
@@ -352,9 +327,6 @@ button {
   background: #5b21b6;
 }
 
-
-
-
 .compose-overlay {
   position: fixed;
   inset: 0;
@@ -437,9 +409,6 @@ button {
   opacity: 0.9;
 }
 
-
-
-
 .email-detail {
   padding: 30px;
 }
@@ -502,9 +471,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-
-
-
 .email-status {
   padding: 40px;
   text-align: center;
@@ -528,9 +494,6 @@ button {
 .retry-button:hover {
   background: #5b21b6;
 }
-
-
-
 
 .reply-button {
   display: inline-block;
@@ -597,9 +560,6 @@ button {
   background: #f3f4f6;
 }
 
-
-
-
 @media (max-width: 1100px) {
   .assistant {
     width: 290px;
@@ -628,7 +588,6 @@ button {
   }
 }
 
-
 .assistant-message {
   padding: 11px 13px;
   border-radius: 10px;
@@ -650,9 +609,6 @@ button {
   margin-right: 10px;
 }
 
-
-
-
 .suggestion {
   width: 100%;
   text-align: left;
@@ -663,9 +619,6 @@ button {
 .suggestion:hover {
   background: #f6f3ff;
 }
-
-
-
 
 .ai-filter-banner {
   background: #f3f0ff;
@@ -696,14 +649,10 @@ button {
   background: #eee7ff;
 }
 
-
-
-
 .assistant-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 
 .ai-filter-bar {
   display: flex;
@@ -750,7 +699,6 @@ button {
   text-align: right;
 }
 
-
 .ai-confirmation {
   background: #f6f3ff;
   border: 1px solid #ddd5ff;
@@ -765,9 +713,6 @@ button {
 .compose-confirmation {
   margin: 15px 20px 0;
 }
-
-
-
 
 .ai-filter-bar {
   display: flex;
@@ -795,11 +740,6 @@ button {
 .ai-filter-bar button:hover {
   background: #eee7ff;
 }
-
-/* =========================================================
-   NEBULA MAIL — UI POLISH
-   Existing layout and functionality are preserved.
-   ========================================================= */
 
 :root {
   --nebula-purple: #6d28d9;
@@ -878,7 +818,6 @@ textarea {
   box-shadow: 0 0 0 3px rgba(124,58,237,.10);
 }
 
-/* Real-time Gmail status */
 .live-sync-indicator {
   padding: 7px 11px;
   border: 1px solid #e5e7eb;
@@ -1075,15 +1014,6 @@ textarea {
   .email-detail { border-radius: 10px; }
 }
 
-
-/* =========================================================
-   NEBULA MAIL — FINAL CORRECTED UI
-   Visual-only CSS override.
-   Existing React/backend functionality and class names preserved.
-   ========================================================= */
-
-/* ---------- App proportions ---------- */
-
 .app {
   background: #f5f7f9;
 }
@@ -1110,8 +1040,6 @@ textarea {
   box-shadow: none;
 }
 
-/* ---------- Typography ---------- */
-
 body,
 button,
 input,
@@ -1131,8 +1059,6 @@ textarea {
   color: #7a8797;
   font-size: 13px;
 }
-
-/* ---------- Sidebar ---------- */
 
 .logo {
   margin: 0 8px 29px;
@@ -1194,8 +1120,6 @@ textarea {
   border-radius: 999px;
 }
 
-/* ---------- Header ---------- */
-
 .header {
   min-width: 0;
   margin-bottom: 18px;
@@ -1228,18 +1152,12 @@ textarea {
   box-shadow: none;
 }
 
-/* ---------- Live status ---------- */
-
 .live-sync-indicator {
   flex-shrink: 0;
   border: 1px solid #dfe5e8;
   background: #fff;
   box-shadow: none;
 }
-
-/* =========================================================
-   INBOX — IMPORTANT ALIGNMENT FIX
-   ========================================================= */
 
 .email-list {
   width: 100%;
@@ -1283,8 +1201,6 @@ textarea {
   box-shadow: inset 3px 0 0 #0f766e;
 }
 
-/* Avatar stays left */
-
 .email-card .avatar {
   flex: 0 0 38px;
   width: 38px;
@@ -1295,16 +1211,12 @@ textarea {
   color: #0b625c;
 }
 
-/* Content MUST occupy remaining width */
-
 .email-card .email-content {
   flex: 1 1 auto;
   min-width: 0;
   width: auto;
   text-align: left;
 }
-
-/* Sender + timestamp row */
 
 .email-card .email-top {
   width: 100%;
@@ -1324,8 +1236,6 @@ textarea {
   text-align: left;
 }
 
-/* Timestamp stays inside the row */
-
 .email-card .email-top span {
   flex: 0 0 auto;
   max-width: 42%;
@@ -1337,8 +1247,6 @@ textarea {
   line-height: 1.3;
   text-align: right;
 }
-
-/* Subject */
 
 .email-card .email-content h3 {
   width: 100%;
@@ -1354,8 +1262,6 @@ textarea {
   white-space: nowrap;
 }
 
-/* Preview */
-
 .email-card .email-content p {
   width: 100%;
   margin: 0;
@@ -1369,8 +1275,6 @@ textarea {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-/* ---------- AI assistant ---------- */
 
 .assistant-header {
   padding: 20px 20px 17px;
@@ -1479,8 +1383,6 @@ textarea {
   transform: none;
 }
 
-/* ---------- AI status/filter elements ---------- */
-
 .ai-filter-banner,
 .ai-filter-bar,
 .ai-confirmation {
@@ -1504,8 +1406,6 @@ textarea {
   background: #f2f8f7;
   border-color: #a9cfcb;
 }
-
-/* ---------- Email detail ---------- */
 
 .email-detail {
   padding: 27px 29px;
@@ -1557,8 +1457,6 @@ textarea {
   line-height: 1.72;
 }
 
-/* ---------- Buttons ---------- */
-
 .send-button,
 .reply-button,
 .retry-button {
@@ -1575,8 +1473,6 @@ textarea {
   transform: translateY(-1px);
   box-shadow: none;
 }
-
-/* ---------- Compose ---------- */
 
 .compose-overlay {
   background: rgba(15, 23, 42, 0.42);
@@ -1616,8 +1512,6 @@ textarea {
   color: #263249;
 }
 
-/* ---------- Reply ---------- */
-
 .reply-box {
   background: #f8fafb;
   border: 1px solid #e1e6eb;
@@ -1629,8 +1523,6 @@ textarea {
   color: #172033;
   font-size: 15px;
 }
-
-/* ---------- Scrollbars ---------- */
 
 .main::-webkit-scrollbar,
 .assistant-body::-webkit-scrollbar {
@@ -1647,8 +1539,6 @@ textarea {
 .assistant-body::-webkit-scrollbar-track {
   background: transparent;
 }
-
-/* ---------- Responsive ---------- */
 
 @media (max-width: 1100px) {
   .sidebar {

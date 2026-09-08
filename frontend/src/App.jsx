@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-const API_BASE = "https://nebula-mail.onrender.com";
+const API_BASE = "http://127.0.0.1:8000";
 
 function App() {
-  // =========================================================
-  // FOLDER / EMAIL STATE
-  // =========================================================
 
   const [emails, setEmails] = useState([]);
   const [currentFolder, setCurrentFolder] = useState("inbox");
@@ -14,34 +11,18 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // =========================================================
-  // REAL-TIME SYNC STATE
-  // =========================================================
-
   const [syncVersion, setSyncVersion] = useState(0);
   const [liveSync, setLiveSync] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [aiFilterTerm, setAiFilterTerm] = useState("");
 
-  // =========================================================
-  // EMAIL DETAIL
-  // =========================================================
-
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [emailBody, setEmailBody] = useState("");
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // =========================================================
-  // AI EMAIL INTELLIGENCE
-  // =========================================================
-
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
-
-  // =========================================================
-  // COMPOSE
-  // =========================================================
 
   const [showCompose, setShowCompose] = useState(false);
 
@@ -53,15 +34,7 @@ function App() {
 
   const [isSending, setIsSending] = useState(false);
 
-  // =========================================================
-  // AI COMPOSE CONFIRMATION
-  // =========================================================
-
   const [aiComposePending, setAiComposePending] = useState(false);
-
-  // =========================================================
-  // REPLY
-  // =========================================================
 
   const [isReplying, setIsReplying] = useState(false);
 
@@ -75,23 +48,11 @@ function App() {
 
   const [isSendingReply, setIsSendingReply] = useState(false);
 
-  // =========================================================
-  // AI REPLY CONFIRMATION
-  // =========================================================
-
   const [aiReplyPending, setAiReplyPending] = useState(false);
-
-  // =========================================================
-  // AI ASSISTANT
-  // =========================================================
 
   const [assistantInput, setAssistantInput] = useState("");
   const [assistantMessages, setAssistantMessages] = useState([]);
   const [assistantLoading, setAssistantLoading] = useState(false);
-
-  // =========================================================
-  // FETCH EMAILS
-  // =========================================================
 
   const fetchEmails = async (showLoading = true) => {
     try {
@@ -128,21 +89,9 @@ function App() {
     }
   };
 
-  // Initial load + folder change
   useEffect(() => {
     fetchEmails(true);
   }, [currentFolder]);
-
-  // =========================================================
-  // REAL-TIME GMAIL SYNC
-  // =========================================================
-  //
-  // Gmail -> Pub/Sub -> FastAPI updates syncVersion.
-  // The frontend checks only this lightweight status endpoint.
-  // When the version changes, the actual email list is refreshed.
-  // A slower fallback refresh is kept in case a push notification
-  // is delayed or missed.
-  // =========================================================
 
   useEffect(() => {
     let lastKnownSyncVersion = null;
@@ -163,7 +112,6 @@ function App() {
 
         setLiveSync(true);
 
-        // First response establishes the baseline.
         if (lastKnownSyncVersion === null) {
           lastKnownSyncVersion =
             serverSyncVersion;
@@ -171,7 +119,6 @@ function App() {
           return;
         }
 
-        // Gmail notification received since the last check.
         if (
           serverSyncVersion !==
           lastKnownSyncVersion
@@ -216,10 +163,6 @@ function App() {
       clearInterval(fallbackInterval);
     };
   }, [currentFolder]);
-
-  // =========================================================
-  // NORMAL + AI FILTER
-  // =========================================================
 
   const filteredEmails = useMemo(() => {
     let result = [...emails];
@@ -268,10 +211,6 @@ function App() {
     return result;
   }, [emails, searchTerm, aiFilterTerm]);
 
-  // =========================================================
-  // NAVIGATION
-  // =========================================================
-
   const openInbox = () => {
     setCurrentFolder("inbox");
     setSelectedEmail(null);
@@ -289,10 +228,6 @@ function App() {
     setSearchTerm("");
     setIsReplying(false);
   };
-
-  // =========================================================
-  // COMPOSE
-  // =========================================================
 
   const openCompose = (data = {}, fromAI = false) => {
     setComposeData({
@@ -328,10 +263,6 @@ function App() {
       [name]: value,
     }));
   };
-
-  // =========================================================
-  // SEND EMAIL
-  // =========================================================
 
   const handleSend = async () => {
     if (!composeData.to || !composeData.body) {
@@ -391,10 +322,6 @@ function App() {
     }
   };
 
-  // =========================================================
-  // OPEN EMAIL DETAIL
-  // =========================================================
-
   const openEmail = async (email) => {
     try {
       setLoadingDetail(true);
@@ -428,10 +355,6 @@ function App() {
       setLoadingDetail(false);
     }
   };
-
-  // =========================================================
-  // ANALYZE CURRENT EMAIL WITH AI
-  // =========================================================
 
   const analyzeSelectedEmail = async () => {
     if (!selectedEmail || aiAnalyzing) {
@@ -493,10 +416,6 @@ function App() {
     setIsReplying(false);
     setAiReplyPending(false);
   };
-
-  // =========================================================
-  // REPLY
-  // =========================================================
 
   const extractEmailAddress = (value) => {
     if (!value) {
@@ -624,17 +543,9 @@ function App() {
     }
   };
 
-  // =========================================================
-  // AI FILTER CLEAR
-  // =========================================================
-
   const clearAiFilter = () => {
     setAiFilterTerm("");
   };
-
-  // =========================================================
-  // AI CHAT MESSAGE
-  // =========================================================
 
   const addAssistantMessage = (role, text) => {
     setAssistantMessages((previous) => [
@@ -645,10 +556,6 @@ function App() {
       },
     ]);
   };
-
-  // =========================================================
-  // FIND LATEST MATCHING EMAIL
-  // =========================================================
 
   const findLatestMatchingEmail = (term) => {
     const cleanTerm =
@@ -678,10 +585,6 @@ function App() {
     return matches[0] || null;
   };
 
-  // =========================================================
-  // EXECUTE AI ACTION
-  // =========================================================
-
   const executeAssistantAction = async (action) => {
     if (!action || !action.action) {
       return;
@@ -689,10 +592,6 @@ function App() {
 
     const actionType =
       action.action.toLowerCase();
-
-    // =======================================================
-    // COMPOSE
-    // =======================================================
 
     if (actionType === "compose") {
       openCompose(
@@ -711,10 +610,6 @@ function App() {
 
       return;
     }
-
-    // =======================================================
-    // SEARCH / FILTER
-    // =======================================================
 
     if (
       actionType === "search" ||
@@ -740,10 +635,6 @@ function App() {
 
       return;
     }
-
-    // =======================================================
-    // OPEN LATEST EMAIL
-    // =======================================================
 
     if (
       actionType === "open_latest" ||
@@ -824,10 +715,6 @@ function App() {
       return;
     }
 
-    // =======================================================
-    // REPLY CURRENT EMAIL
-    // =======================================================
-
     if (
       actionType === "reply_current" ||
       actionType === "reply"
@@ -851,10 +738,6 @@ function App() {
       return;
     }
 
-    // =======================================================
-    // SENT
-    // =======================================================
-
     if (
       actionType === "sent" ||
       actionType === "show_sent"
@@ -872,10 +755,6 @@ function App() {
       return;
     }
 
-    // =======================================================
-    // INBOX
-    // =======================================================
-
     if (
       actionType === "inbox" ||
       actionType === "show_inbox"
@@ -892,10 +771,6 @@ function App() {
 
       return;
     }
-
-    // =======================================================
-    // OPEN SPECIFIC EMAIL
-    // =======================================================
 
     if (actionType === "open") {
       if (action.email_id) {
@@ -920,10 +795,6 @@ function App() {
       }
     }
   };
-
-  // =========================================================
-  // AI SUGGESTION BUTTONS
-  // =========================================================
 
   const handleSuggestionClick = async (suggestionText) => {
     if (assistantLoading) {
@@ -1006,10 +877,6 @@ function App() {
       setAssistantLoading(false);
     }
   };
-
-  // =========================================================
-  // AI ASSISTANT REQUEST
-  // =========================================================
 
   const handleAssistantSend = async () => {
     const message =
@@ -1118,16 +985,8 @@ function App() {
     }
   };
 
-  // =========================================================
-  // UI
-  // =========================================================
-
   return (
     <div className="app">
-
-      {/* =====================================================
-          SIDEBAR
-          ===================================================== */}
 
       <aside className="sidebar">
 
@@ -1192,10 +1051,6 @@ function App() {
         </div>
 
       </aside>
-
-      {/* =====================================================
-          MAIN
-          ===================================================== */}
 
       <main className="main">
 
@@ -1271,8 +1126,6 @@ function App() {
 
             </div>
 
-            {/* AI FILTER */}
-
             {aiFilterTerm && (
               <div className="ai-filter-bar">
 
@@ -1292,8 +1145,6 @@ function App() {
 
               </div>
             )}
-
-            {/* EMAILS */}
 
             {loading ? (
 
@@ -1405,10 +1256,6 @@ function App() {
 
         ) : (
 
-          /* ==================================================
-             EMAIL DETAIL
-             ================================================== */
-
           <div className="email-detail">
 
             <button
@@ -1480,8 +1327,6 @@ function App() {
 
                 </div>
 
-                {/* REPLY */}
-
                 {currentFolder !==
                   "sent" && (
 
@@ -1495,8 +1340,6 @@ function App() {
                   </button>
 
                 )}
-
-                {/* REPLY BOX */}
 
                 {isReplying && (
 
@@ -1584,7 +1427,6 @@ function App() {
 
                 )}
 
-                {/* AI EMAIL INTELLIGENCE */}
                 <div
                   style={{
                     marginTop: "20px",
@@ -1745,8 +1587,6 @@ function App() {
                   )}
                 </div>
 
-                {/* BODY */}
-
 <div className="email-detail-body">
                   {emailBody ||
                     "No message content available."}
@@ -1761,10 +1601,6 @@ function App() {
         )}
 
       </main>
-
-      {/* =====================================================
-          AI ASSISTANT
-          ===================================================== */}
 
       <aside className="assistant">
 
@@ -1929,10 +1765,6 @@ function App() {
         </div>
 
       </aside>
-
-      {/* =====================================================
-          COMPOSE WINDOW
-          ===================================================== */}
 
       {showCompose && (
 
