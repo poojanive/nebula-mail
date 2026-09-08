@@ -31,19 +31,24 @@ The walkthrough covers: AI-assisted composition, natural-language search and fil
 ### Screenshots
 
 **Inbox with the AI Assistant panel**
-<img width="1918" height="897" alt="image" src="https://github.com/user-attachments/assets/13d3cce6-fe5a-4dfd-b338-140439eb6c7c" />
+
+<img width="1662" height="897" alt="image" src="https://github.com/user-attachments/assets/db68c673-f1b7-4564-bceb-5e6c03bfdd1b" />
 
 
 **AI-controlled navigation — "Open the latest email from LinkedIn"**
+
 <img width="1918" height="897" alt="image" src="https://github.com/user-attachments/assets/6b172bc9-2c6c-45b9-9f28-9ae28155ed34" />
 
 
 **AI-assisted composition with automatic field population**
+
 <img width="1912" height="832" alt="image" src="https://github.com/user-attachments/assets/62a6e7d1-e993-47dc-99b4-dff23bc2a0ae" />
 
 
 **AI Email Intelligence — classification, priority, and action analysis**
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1b619e27-c139-4f95-8114-17aa3c16a622" />
+
+<img width="1911" height="831" alt="image" src="https://github.com/user-attachments/assets/c5b703f3-01a1-432c-8de6-b819b9cba67f" />
+
 
 
 ---
