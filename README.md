@@ -2,6 +2,7 @@
 
 **A Gmail-powered mail client where the AI assistant doesn't just talk about your inbox — it operates it.**
 
+Built for the Nebula KnowLab 2027 Engineering Hiring Task.
 
 ---
 
@@ -23,10 +24,27 @@ The same commands can also be triggered from built-in suggestion prompts — cli
 
 ## Demo
 
-- 🎥 **Video walkthrough:** `<insert link — Loom / YouTube unlisted / Drive>`
-- 📸 **Screenshots:** `<add screenshots here when available>`
+- 🎥 **Video walkthrough:** [Watch on Google Drive](https://drive.google.com/file/d/1RenxV_I8TfUepGpMNaUOS7jGLey_BVxV/view?usp=sharing)
 
 The walkthrough covers: AI-assisted composition, natural-language search and filtering, navigation between Inbox and Sent, opening a specific email, a context-aware reply, AI Email Intelligence in the detail view, and a live email arriving with zero manual refresh.
+
+### Screenshots
+
+**Inbox with the AI Assistant panel**
+<img width="1918" height="897" alt="image" src="https://github.com/user-attachments/assets/13d3cce6-fe5a-4dfd-b338-140439eb6c7c" />
+
+
+**AI-controlled navigation — "Open the latest email from LinkedIn"**
+<img width="1918" height="897" alt="image" src="https://github.com/user-attachments/assets/6b172bc9-2c6c-45b9-9f28-9ae28155ed34" />
+
+
+**AI-assisted composition with automatic field population**
+<img width="1912" height="832" alt="image" src="https://github.com/user-attachments/assets/62a6e7d1-e993-47dc-99b4-dff23bc2a0ae" />
+
+
+**AI Email Intelligence — classification, priority, and action analysis**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1b619e27-c139-4f95-8114-17aa3c16a622" />
+
 
 ---
 
